@@ -14,6 +14,13 @@ GENERATED_PATH = BASE_DIR / "data" / "generated_sentences.jsonl"
 _data_dir = Path(os.environ.get("DATA_DIR", BASE_DIR))
 HUMAN_VERIF_PATH = _data_dir / "human_verif.jsonl"
 
+# Seed persistent disk from committed file on first deploy
+_seed_source = BASE_DIR / "human_verif.jsonl"
+if not HUMAN_VERIF_PATH.exists() and _seed_source.exists() and _data_dir != BASE_DIR:
+    _data_dir.mkdir(parents=True, exist_ok=True)
+    import shutil
+    shutil.copy2(_seed_source, HUMAN_VERIF_PATH)
+
 # Configure Gemini API for transliteration
 api_keys = [
     os.environ.get("GEMINI_API_KEY1"),
