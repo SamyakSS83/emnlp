@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+human_verif.jsonl
+*.tmp
+code/
+Parseme_hindi_dataset/
+data.txt
+Hindi\ Vyakaran\ \&\ Rachna.pdf
