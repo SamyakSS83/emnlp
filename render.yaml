@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: hindi-idiom-verifier
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      - key: GEMINI_API_KEY1
+        sync: false
+      - key: GEMINI_API_KEY2
+        sync: false
+      - key: GEMINI_API_KEY3
+        sync: false
+    disk:
+      name: verif-data
+      mountPath: /var/data
+      sizeGB: 1

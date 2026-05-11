@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Idiom Review Desk</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="backdrop"></div>
+  <main class="shell">
+    <section class="hero card">
+      <div>
+        <p class="eyebrow">Human verification</p>
+        <h1>Idiom Review Desk</h1>
+        <p class="lede">Pick a phrase number from 1 to {{ total_phrases }}, review its four generated sentences, add extras if needed, then submit only when ready.</p>
+      </div>
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat">
+          <span class="stat-label">Done</span>
+          <strong id="statDone">{{ stats.reviewed_phrases }}</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Pending</span>
+          <strong id="statPending">{{ stats.pending_phrases }}</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Items approved</span>
+          <strong id="statApproved">{{ stats.approved_items }}</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Items edited</span>
+          <strong id="statEdited">{{ stats.edited_items }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="card controls">
+      <div class="jump-row">
+        <label for="phraseIndex">Phrase number</label>
+        <input id="phraseIndex" type="number" min="1" max="{{ total_phrases }}" value="1">
+        <button id="jumpBtn" class="primary">Open</button>
+        <button id="prevBtn">Prev</button>
+        <button id="nextBtn">Next</button>
+      </div>
+      <div class="status-row">
+        <span id="recordStatus">Ready to load a phrase.</span>
+        <span id="draftStatus">Draft saved locally only.</span>
+      </div>
+    </section>
+
+    <section class="card transliteration-tool">
+      <div class="tool-header">
+        <p class="eyebrow">Transliteration Helper</p>
+        <h3>Convert Hindi to Devanagari</h3>
+      </div>
+      <div class="tool-content">
+        <input id="transiterationInput" type="text" placeholder="Type Hindi in English (e.g., namaste, bhasha) and press Convert">
+        <button id="convertBtn" class="primary">Convert & Copy</button>
+        <span id="transiterationStatus" class="translit-status"></span>
+      </div>
+      <div id="conversionResult" class="conversion-result" style="display:none;">
+        <span id="convertedText"></span>
+        <button id="copyResultBtn" class="ghost">Copy result</button>
+      </div>
+    </section>
+
+    <section class="card phrase-card" id="phraseCard">
+      <div class="phrase-header">
+        <div>
+          <p class="eyebrow">Current phrase</p>
+          <h2 id="phraseTitle">Loading...</h2>
+          <p class="meaning" id="phraseMeaning"></p>
+        </div>
+        <div class="badge" id="phraseBadge">1 / {{ total_phrases }}</div>
+      </div>
+
+      <div class="sentence-tools">
+        <button id="addIdiomaticBtn" class="ghost">Add idiomatic</button>
+        <button id="addLiteralBtn" class="ghost">Add literal</button>
+      </div>
+
+      <div id="sentenceList" class="sentence-list"></div>
+
+      <div class="footer-actions">
+        <button id="submitBtn" class="primary">Submit review</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.APP_CONFIG = {
+      totalPhrases: {{ total_phrases }},
+    };
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
