@@ -326,14 +326,21 @@ async function submitReview() {
   await loadPhrase(currentIndex, { fromNav: true });
 }
 
-jumpBtn.addEventListener("click", () => loadPhrase(ensurePhraseBounds(phraseIndexInput.value), { fromNav: true }));
+async function navTo(index) {
+  if (draft && markAllTouchedIfNeeded()) {
+    await submitReview();
+  }
+  loadPhrase(index, { fromNav: true });
+}
+
+jumpBtn.addEventListener("click", () => navTo(ensurePhraseBounds(phraseIndexInput.value)));
 phraseIndexInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    loadPhrase(ensurePhraseBounds(phraseIndexInput.value), { fromNav: true });
+    navTo(ensurePhraseBounds(phraseIndexInput.value));
   }
 });
-prevBtn.addEventListener("click", () => loadPhrase(currentIndex - 1, { fromNav: true }));
-nextBtn.addEventListener("click", () => loadPhrase(currentIndex + 1, { fromNav: true }));
+prevBtn.addEventListener("click", () => navTo(currentIndex - 1));
+nextBtn.addEventListener("click", () => navTo(currentIndex + 1));
 addIdiomaticBtn.addEventListener("click", () => addExtra("idiomatic"));
 addLiteralBtn.addEventListener("click", () => addExtra("literal"));
 submitBtn.addEventListener("click", submitReview);
