@@ -1,9 +1,10 @@
 import json
 import os
+import threading
 from pathlib import Path
 
 from google import genai
-from flask import Flask, abort, jsonify, render_template, request
+from flask import Flask, abort, jsonify, render_template, request, send_file
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,6 +34,7 @@ if not api_keys:
     print("Warning: No Gemini API keys found for transliteration.")
 
 app = Flask(__name__)
+_save_lock = threading.Lock()
 
 
 def get_gemini_client():
@@ -201,20 +203,20 @@ def api_save():
     if source_index < 1 or source_index > len(generated_records):
         abort(404)
 
-    review_map = load_reviews()
     if not review:
         abort(400)
-
-    review["source_index"] = source_index
-    review["phrase"] = generated_records[source_index - 1].get("phrase", review.get("phrase", ""))
-    review["meaning"] = generated_records[source_index - 1].get("meaning", review.get("meaning", ""))
 
     touched_items = [item for item in review.get("items", []) if item.get("touched")]
     if not touched_items and not review.get("extras"):
         return jsonify({"ok": False, "message": "No interactions to save."}), 400
 
-    review_map[source_index] = review
-    save_reviews(review_map)
+    with _save_lock:
+        review_map = load_reviews()
+        review["source_index"] = source_index
+        review["phrase"] = generated_records[source_index - 1].get("phrase", review.get("phrase", ""))
+        review["meaning"] = generated_records[source_index - 1].get("meaning", review.get("meaning", ""))
+        review_map[source_index] = review
+        save_reviews(review_map)
 
     return jsonify({"ok": True, "stats": summarize_reviews(review_map)})
 
@@ -255,6 +257,13 @@ Devanagari:"""
         if "429" in error_msg or "resource exhausted" in error_msg or "quota" in error_msg:
             return jsonify({"ok": False, "error": "API rate limit reached. Try again later."}), 429
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.get("/api/download")
+def api_download():
+    if not HUMAN_VERIF_PATH.exists():
+        abort(404)
+    return send_file(HUMAN_VERIF_PATH, as_attachment=True, download_name="human_verif.jsonl", mimetype="application/x-ndjson")
 
 
 if __name__ == "__main__":
